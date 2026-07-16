@@ -26,19 +26,21 @@ Build a fully functional, production-ready Smart Money Management Web Applicatio
 - [x] Splash / Onboarding with mascot logo (SVG)
 - [x] JWT Auth: register, login, logout, `/me`
 - [x] Executive Dashboard: balance card, monthly income/expense, timeline grouped by date, quick action tiles
-- [x] Add Transaction form: type toggle, amount, category chips, wallet, datetime, note, photo (base64)
+- [x] Add Transaction form: type toggle, amount, category chips, wallet, **shadcn Calendar+Popover (id_locale)**, note, photo (base64)
 - [x] Multi-wallet CRUD with freemium 2-wallet cap
 - [x] Debt/Receivable Tracker with dual tabs, settle & delete
 - [x] Category Budgets with progress bars + "Melebihi Anggaran" pill for over-budget
 - [x] Calendar Financial Grid with per-day green/red markers + month totals header
 - [x] Interactive donut Pie Chart Analysis — click segments/legend to filter
 - [x] KantongKu Pro pricing page — Rp 29.000/bulan
+- [x] **Midtrans Snap payment integration** with automatic fallback to simulation when env keys empty
 - [x] Simulated QRIS + Bank Transfer checkout modal → toggles user to premium
 - [x] Gold PRO badge on Dashboard + Profile after upgrade
 - [x] Dark Mode toggle (Sun/Moon icon) in Dashboard header + Profile — persistent
 - [x] Public `/privacy-policy` route
 - [x] PWA manifest + service worker
 - [x] Pre-seeded reviewer account (5 wallets, 15 transactions, 4 debts, 5 budgets)
+- [x] **Deployment health check: PASS**
 
 ## Backlog / Next Actions (P0 → P2)
 - **P1**: Replace native `<input type=datetime-local>` on /tambah with shadcn Calendar+Popover for UI consistency.
