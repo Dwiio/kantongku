@@ -46,5 +46,5 @@ Pastikan Anda sudah menginstal Node.js dan Python/Package Manager yang sesuai di
 
 1. **Clone Repositori:**
    ```bash
-   git clone [https://github.com/USERNAME/kantongku.git](https://github.com/dwiio/kantongku.git)
+   git clone [https://github.com/dwiio/kantongku.git](https://github.com/dwiio/kantongku.git)
    cd kantongku
