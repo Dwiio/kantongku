@@ -1,0 +1,18 @@
+{
+    "short_name": "KantongKu",
+    "name": "KantongKu — Asisten Keuangan AI",
+    "description": "Aplikasi manajemen keuangan pintar dengan multi-dompet, anggaran, dan analisis.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#F8FAFC",
+    "theme_color": "#2C62B5",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}
