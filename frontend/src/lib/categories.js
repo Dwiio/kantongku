@@ -1,3 +1,20 @@
+import {
+    Utensils,
+    Car,
+    Gamepad2,
+    Home,
+    GraduationCap,
+    HeartPulse,
+    ShoppingBag,
+    Receipt,
+    CircleDashed,
+    Briefcase,
+    Gift,
+    Laptop,
+    TrendingUp,
+    PartyPopper,
+} from "lucide-react";
+
 export const CATEGORIES = {
     expense: [
         { key: "Makanan", icon: "utensils", color: "#EF4444" },
@@ -20,7 +37,27 @@ export const CATEGORIES = {
     ],
 };
 
+// Map lucide icon-name string → actual React component
+export const ICON_MAP = {
+    "utensils": Utensils,
+    "car": Car,
+    "gamepad-2": Gamepad2,
+    "home": Home,
+    "graduation-cap": GraduationCap,
+    "heart-pulse": HeartPulse,
+    "shopping-bag": ShoppingBag,
+    "receipt": Receipt,
+    "circle-dashed": CircleDashed,
+    "briefcase": Briefcase,
+    "gift": Gift,
+    "laptop": Laptop,
+    "trending-up": TrendingUp,
+    "party-popper": PartyPopper,
+};
+
 export const findCategory = (type, key) => {
     const list = CATEGORIES[type] || [];
     return list.find((c) => c.key === key) || { key, icon: "circle-dashed", color: "#64748B" };
 };
+
+export const getCategoryIcon = (iconName) => ICON_MAP[iconName] || CircleDashed;

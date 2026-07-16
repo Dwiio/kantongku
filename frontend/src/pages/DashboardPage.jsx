@@ -5,7 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import ThemeToggle from "@/components/ThemeToggle";
 import { KantongKuLogo } from "@/components/KantongKuLogo";
 import { formatIDR, formatIDRCompact, groupByDate, formatTime } from "@/lib/format";
-import { findCategory } from "@/lib/categories";
+import { findCategory, getCategoryIcon } from "@/lib/categories";
 import { Wallet, TrendingUp, TrendingDown, Landmark, HandCoins, Target, Camera } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -122,12 +122,16 @@ const DashboardPage = () => {
                             <div className="space-y-2">
                                 {g.items.map((t) => {
                                     const cat = findCategory(t.type, t.category);
+                                    const CatIcon = getCategoryIcon(cat.icon);
                                     const w = walletById[t.wallet_id];
                                     return (
                                         <div key={t.id} className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border" data-testid={`tx-item-${t.id}`}>
-                                            <div className="w-11 h-11 rounded-2xl grid place-items-center shrink-0" style={{ background: cat.color + "22", color: cat.color }}>
-                                                <i data-lucide={cat.icon} className="w-5 h-5" />
-                                                <CategoryEmoji type={t.type} />
+                                            <div
+                                                className="w-11 h-11 rounded-2xl grid place-items-center shrink-0"
+                                                style={{ background: cat.color + "22", color: cat.color }}
+                                                data-testid={`tx-cat-icon-${t.category}`}
+                                            >
+                                                <CatIcon className="w-5 h-5" strokeWidth={2.5} />
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center gap-2">
@@ -161,8 +165,6 @@ const DashboardPage = () => {
         </AppShell>
     );
 };
-
-const CategoryEmoji = () => null;
 
 const QuickAction = ({ to, icon, label, testId }) => (
     <Link to={to} data-testid={testId} className="flex flex-col items-center justify-center gap-1 p-3 rounded-2xl bg-card border border-border active:scale-95 transition-transform">
