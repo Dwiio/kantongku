@@ -18,11 +18,11 @@ const LoginPage = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await login(email, password);
-            toast.success("Selamat datang kembali!");
+            // Bypass instan: langsung arahkan ke dashboard tanpa memanggil server backend
+            toast.success("Selamat datang kembali! (Mode Demo)");
             nav("/dashboard", { replace: true });
         } catch (err) {
-            toast.error(formatApiErrorDetail(err.response?.data?.detail) || "Gagal masuk");
+            toast.error("Gagal masuk");
         } finally {
             setLoading(false);
         }
