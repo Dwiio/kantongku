@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/context/AuthContext";
 import { api, formatApiErrorDetail } from "@/lib/api";
 import { toast } from "sonner";
-import { ArrowLeft, Crown, Check, X, QrCode, Landmark, Sparkles } from "lucide-react";
+import { ArrowLeft, Crown, Check, X, QrCode, Landmark, Sparkles, Zap } from "lucide-react";
 
 const FEATURES = [
     "Dompet tanpa batas (Cash, Bank, E-Wallet, Kartu, Tabungan, Investasi)",
@@ -17,9 +17,59 @@ const FEATURES = [
 
 const ProPage = () => {
     const nav = useNavigate();
-    const { user, refresh, setUser } = useAuth();
+    const { user, setUser, refresh } = useAuth();
     const [checkout, setCheckout] = useState(null); // "qris" | "bank_transfer" | null
     const [processing, setProcessing] = useState(false);
+    const [payCfg, setPayCfg] = useState(null); // { provider, client_key, is_production }
+
+    useEffect(() => {
+        api.get("/payments/config").then((r) => setPayCfg(r.data)).catch(() => setPayCfg({ provider: "simulation" }));
+    }, []);
+
+    // Inject Midtrans Snap script when real provider is active
+    useEffect(() => {
+        if (!payCfg || payCfg.provider !== "midtrans") return;
+        if (document.getElementById("midtrans-snap-js")) return;
+        const s = document.createElement("script");
+        s.id = "midtrans-snap-js";
+        s.src = payCfg.is_production
+            ? "https://app.midtrans.com/snap/snap.js"
+            : "https://app.sandbox.midtrans.com/snap/snap.js";
+        s.setAttribute("data-client-key", payCfg.client_key || "");
+        s.async = true;
+        document.body.appendChild(s);
+    }, [payCfg]);
+
+    const payWithMidtrans = async () => {
+        setProcessing(true);
+        try {
+            const { data } = await api.post("/payments/snap-token");
+            if (!window.snap) {
+                toast.error("Snap belum termuat. Coba lagi.");
+                return;
+            }
+            window.snap.pay(data.token, {
+                onSuccess: async () => {
+                    toast.success("Pembayaran berhasil. Aktivasi PRO…");
+                    // webhook will mark premium; poll /me a few times
+                    for (let i = 0; i < 6; i++) {
+                        await new Promise((r) => setTimeout(r, 1500));
+                        await refresh();
+                        if (user?.role === "premium") break;
+                    }
+                    setCheckout(null);
+                    nav("/profil");
+                },
+                onPending: () => toast.info("Menunggu pembayaran…"),
+                onError: () => toast.error("Pembayaran gagal"),
+                onClose: () => setProcessing(false),
+            });
+        } catch (err) {
+            toast.error(formatApiErrorDetail(err.response?.data?.detail) || "Gagal memulai pembayaran");
+        } finally {
+            setProcessing(false);
+        }
+    };
 
     const simulate = async (method) => {
         setProcessing(true);
@@ -38,6 +88,7 @@ const ProPage = () => {
     };
 
     const isPro = user?.role === "premium";
+    const usingMidtrans = payCfg?.provider === "midtrans";
 
     return (
         <AppShell showNav={false}>
@@ -80,24 +131,46 @@ const ProPage = () => {
                     </div>
                 ) : (
                     <>
-                        <p className="mt-6 font-sans text-xs font-bold uppercase tracking-wider text-muted-foreground">Pilih Metode Pembayaran</p>
-                        <div className="mt-2 grid grid-cols-2 gap-3">
-                            <button onClick={() => setCheckout("qris")} data-testid="pro-pay-qris" className="rounded-2xl p-4 bg-card border border-border active:scale-95 transition-transform">
-                                <QrCode className="w-6 h-6 text-brand-blue" strokeWidth={2.5} />
-                                <p className="mt-2 font-sans text-sm font-bold">QRIS</p>
-                                <p className="text-[10px] text-muted-foreground">Scan & bayar</p>
-                            </button>
-                            <button onClick={() => setCheckout("bank_transfer")} data-testid="pro-pay-bank" className="rounded-2xl p-4 bg-card border border-border active:scale-95 transition-transform">
-                                <Landmark className="w-6 h-6 text-brand-teal" strokeWidth={2.5} />
-                                <p className="mt-2 font-sans text-sm font-bold">Transfer Bank</p>
-                                <p className="text-[10px] text-muted-foreground">BCA / Mandiri / BNI</p>
-                            </button>
-                        </div>
+                        {usingMidtrans ? (
+                            <div className="mt-6">
+                                <div className="rounded-2xl p-3 bg-brand-teal/10 border border-brand-teal/30 flex items-center gap-2 mb-3">
+                                    <Zap className="w-4 h-4 text-brand-teal" />
+                                    <p className="text-xs font-bold text-brand-teal">Pembayaran real via Midtrans {payCfg.is_production ? "(Production)" : "(Sandbox)"}</p>
+                                </div>
+                                <button
+                                    onClick={payWithMidtrans}
+                                    disabled={processing}
+                                    data-testid="pro-pay-midtrans"
+                                    className="w-full h-14 rounded-full text-white font-bold shadow-[0_10px_25px_rgba(20,184,166,0.4)] active:scale-95 transition-transform disabled:opacity-60"
+                                    style={{ background: "linear-gradient(135deg,#14B8A6,#2C62B5)" }}
+                                >
+                                    {processing ? "Membuka pembayaran…" : "Bayar Sekarang · Rp 29.000"}
+                                </button>
+                                <p className="mt-2 text-[11px] text-center text-muted-foreground">Menggunakan QRIS, VA, GoPay, ShopeePay, kartu kredit — semua via Midtrans.</p>
+                            </div>
+                        ) : (
+                            <>
+                                <p className="mt-6 font-sans text-xs font-bold uppercase tracking-wider text-muted-foreground">Pilih Metode Pembayaran</p>
+                                <p className="text-[11px] text-muted-foreground">Mode simulasi aktif. Aktifkan Midtrans dari env untuk pembayaran nyata.</p>
+                                <div className="mt-2 grid grid-cols-2 gap-3">
+                                    <button onClick={() => setCheckout("qris")} data-testid="pro-pay-qris" className="rounded-2xl p-4 bg-card border border-border active:scale-95 transition-transform">
+                                        <QrCode className="w-6 h-6 text-brand-blue" strokeWidth={2.5} />
+                                        <p className="mt-2 font-sans text-sm font-bold">QRIS</p>
+                                        <p className="text-[10px] text-muted-foreground">Scan & bayar</p>
+                                    </button>
+                                    <button onClick={() => setCheckout("bank_transfer")} data-testid="pro-pay-bank" className="rounded-2xl p-4 bg-card border border-border active:scale-95 transition-transform">
+                                        <Landmark className="w-6 h-6 text-brand-teal" strokeWidth={2.5} />
+                                        <p className="mt-2 font-sans text-sm font-bold">Transfer Bank</p>
+                                        <p className="text-[10px] text-muted-foreground">BCA / Mandiri / BNI</p>
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </>
                 )}
 
-                {/* Checkout modal */}
-                {checkout && (
+                {/* Checkout modal (simulation) */}
+                {checkout && !usingMidtrans && (
                     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" data-testid="pro-checkout-modal">
                         <div className="w-full max-w-sm rounded-3xl bg-card p-6 border border-border">
                             <div className="flex items-center justify-between">
@@ -153,7 +226,6 @@ const QRISMock = () => {
         <div className="w-48 h-48 grid" style={{ gridTemplateColumns: `repeat(${cells}, 1fr)` }}>
             {bits.map((b, i) => {
                 const r = Math.floor(i / cells), c = i % cells;
-                // corner finders
                 const inTL = r < 7 && c < 7;
                 const inTR = r < 7 && c > cells - 8;
                 const inBL = r > cells - 8 && c < 7;

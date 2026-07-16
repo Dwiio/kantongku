@@ -6,12 +6,15 @@ load_dotenv(ROOT_DIR / '.env')
 
 import os
 import uuid
+import base64
+import hashlib
 import logging
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Literal
 
 import jwt
 import bcrypt
+import httpx
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -32,6 +35,15 @@ JWT_ALGORITHM = "HS256"
 JWT_SECRET = os.environ["JWT_SECRET"]
 REVIEWER_EMAIL = os.environ["REVIEWER_EMAIL"]
 REVIEWER_PASSWORD = os.environ["REVIEWER_PASSWORD"]
+
+# Midtrans config (empty until user provides real keys — app falls back to simulation)
+MIDTRANS_SERVER_KEY = os.environ.get("MIDTRANS_SERVER_KEY", "").strip()
+MIDTRANS_CLIENT_KEY = os.environ.get("MIDTRANS_CLIENT_KEY", "").strip()
+MIDTRANS_MERCHANT_ID = os.environ.get("MIDTRANS_MERCHANT_ID", "").strip()
+MIDTRANS_IS_PRODUCTION = os.environ.get("MIDTRANS_IS_PRODUCTION", "false").lower() == "true"
+MIDTRANS_ENABLED = bool(MIDTRANS_SERVER_KEY and MIDTRANS_CLIENT_KEY)
+MIDTRANS_SNAP_BASE = "https://app.midtrans.com" if MIDTRANS_IS_PRODUCTION else "https://app.sandbox.midtrans.com"
+KANTONGKU_PRO_PRICE = 29000
 
 
 # --------------------------------------------------------------------------
@@ -472,12 +484,115 @@ async def simulate_payment(body: PaymentSimulateRequest, user: dict = Depends(ge
         "id": str(uuid.uuid4()),
         "user_id": user["id"],
         "method": body.method,
-        "amount": 29000,
+        "amount": KANTONGKU_PRO_PRICE,
         "status": "success",
+        "provider": "simulation",
         "created_at": now_iso(),
     })
     fresh = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
     return {"user": fresh, "status": "success"}
+
+
+# --------------------------------------------------------------------------
+# MIDTRANS payment gateway (real integration when keys are configured)
+# --------------------------------------------------------------------------
+@api_router.get("/payments/config")
+async def payment_config():
+    """Public config — tells frontend whether to use real Midtrans Snap or simulation."""
+    return {
+        "provider": "midtrans" if MIDTRANS_ENABLED else "simulation",
+        "client_key": MIDTRANS_CLIENT_KEY if MIDTRANS_ENABLED else None,
+        "is_production": MIDTRANS_IS_PRODUCTION,
+        "amount": KANTONGKU_PRO_PRICE,
+    }
+
+
+@api_router.post("/payments/snap-token")
+async def create_snap_token(user: dict = Depends(get_current_user)):
+    if not MIDTRANS_ENABLED:
+        raise HTTPException(status_code=503, detail="Midtrans belum dikonfigurasi. Gunakan simulasi.")
+
+    order_id = f"KKPRO-{uuid.uuid4().hex[:12].upper()}"
+    body = {
+        "transaction_details": {"order_id": order_id, "gross_amount": KANTONGKU_PRO_PRICE},
+        "customer_details": {"first_name": user.get("name", "User"), "email": user["email"]},
+        "item_details": [{
+            "id": "kantongku-pro-monthly",
+            "price": KANTONGKU_PRO_PRICE,
+            "quantity": 1,
+            "name": "KantongKu Pro (1 bulan)",
+        }],
+        "credit_card": {"secure": True},
+    }
+    auth = base64.b64encode(f"{MIDTRANS_SERVER_KEY}:".encode()).decode()
+    async with httpx.AsyncClient(timeout=30) as http:
+        resp = await http.post(
+            f"{MIDTRANS_SNAP_BASE}/snap/v1/transactions",
+            json=body,
+            headers={
+                "Authorization": f"Basic {auth}",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+        )
+    if resp.status_code >= 400:
+        raise HTTPException(status_code=resp.status_code, detail=f"Midtrans error: {resp.text}")
+
+    data = resp.json()
+    await db.payment_logs.insert_one({
+        "id": str(uuid.uuid4()),
+        "order_id": order_id,
+        "user_id": user["id"],
+        "amount": KANTONGKU_PRO_PRICE,
+        "status": "created",
+        "provider": "midtrans",
+        "snap_token": data.get("token"),
+        "created_at": now_iso(),
+    })
+    return {"token": data["token"], "redirect_url": data.get("redirect_url"), "order_id": order_id}
+
+
+@api_router.post("/payments/midtrans/webhook")
+async def midtrans_webhook(request: Request):
+    """Midtrans server-to-server notification. Verifies signature and grants premium on settlement/capture."""
+    if not MIDTRANS_ENABLED:
+        raise HTTPException(status_code=503, detail="Midtrans not configured")
+
+    body = await request.json()
+    order_id = body.get("order_id", "")
+    status_code = str(body.get("status_code", ""))
+    gross_amount = str(body.get("gross_amount", ""))
+    signature_key = body.get("signature_key", "")
+
+    raw = f"{order_id}{status_code}{gross_amount}{MIDTRANS_SERVER_KEY}"
+    expected = hashlib.sha512(raw.encode()).hexdigest()
+    if signature_key != expected:
+        raise HTTPException(status_code=401, detail="Invalid signature")
+
+    transaction_status = body.get("transaction_status")
+    fraud_status = body.get("fraud_status")
+    success = transaction_status in ("settlement", "capture") and fraud_status in (None, "accept")
+
+    payment = await db.payment_logs.find_one({"order_id": order_id})
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+
+    await db.payment_logs.update_one(
+        {"order_id": order_id},
+        {"$set": {
+            "status": transaction_status,
+            "fraud_status": fraud_status,
+            "raw_webhook": body,
+            "updated_at": now_iso(),
+        }},
+    )
+
+    if success:
+        await db.users.update_one(
+            {"id": payment["user_id"]},
+            {"$set": {"role": "premium", "premium_since": now_iso(), "payment_method": "midtrans"}},
+        )
+    return {"ok": True}
 
 
 @api_router.post("/premium/downgrade")

@@ -4,7 +4,11 @@ import { AppShell } from "@/components/AppShell";
 import { api, formatApiErrorDetail } from "@/lib/api";
 import { CATEGORIES } from "@/lib/categories";
 import { toast } from "sonner";
-import { ArrowLeft, Camera, X } from "lucide-react";
+import { ArrowLeft, Camera, X, CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { id as idLocale } from "date-fns/locale";
+import { format as formatDate } from "date-fns";
 
 const AddTransactionPage = () => {
     const nav = useNavigate();
@@ -14,7 +18,12 @@ const AddTransactionPage = () => {
     const [category, setCategory] = useState("Makanan");
     const [note, setNote] = useState("");
     const [walletId, setWalletId] = useState("");
-    const [date, setDate] = useState(() => new Date().toISOString().slice(0, 16));
+    const [date, setDate] = useState(() => new Date());
+    const [time, setTime] = useState(() => {
+        const d = new Date();
+        return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    });
+    const [datePopoverOpen, setDatePopoverOpen] = useState(false);
     const [photo, setPhoto] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -46,13 +55,16 @@ const AddTransactionPage = () => {
         if (!walletId) { toast.error("Pilih dompet"); return; }
         setLoading(true);
         try {
+            const [hh, mm] = time.split(":").map(Number);
+            const combined = new Date(date);
+            combined.setHours(hh || 0, mm || 0, 0, 0);
             await api.post("/transactions", {
                 wallet_id: walletId,
                 type,
                 amount: amt,
                 category,
                 note,
-                date: new Date(date).toISOString(),
+                date: combined.toISOString(),
                 photo,
             });
             toast.success("Transaksi tersimpan");
@@ -153,16 +165,39 @@ const AddTransactionPage = () => {
                         </select>
                     </div>
 
-                    {/* Date */}
+                    {/* Date + Time */}
                     <div>
                         <span className="font-sans text-xs font-bold uppercase tracking-wider text-muted-foreground">Tanggal & Waktu</span>
-                        <input
-                            data-testid="add-tx-date-input"
-                            type="datetime-local"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            className="mt-1.5 w-full h-13 px-4 rounded-2xl border border-input bg-card font-sans text-base outline-none"
-                        />
+                        <div className="mt-1.5 grid grid-cols-[1fr_auto] gap-2">
+                            <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+                                <PopoverTrigger asChild>
+                                    <button
+                                        type="button"
+                                        data-testid="add-tx-date-trigger"
+                                        className="w-full h-13 px-4 rounded-2xl border border-input bg-card font-sans text-sm text-left flex items-center gap-2 hover:bg-muted transition-colors"
+                                    >
+                                        <CalendarIcon className="w-4 h-4 text-brand-blue" />
+                                        <span>{formatDate(date, "EEEE, d MMMM yyyy", { locale: idLocale })}</span>
+                                    </button>
+                                </PopoverTrigger>
+                                <PopoverContent align="start" className="w-auto p-0" data-testid="add-tx-date-popover">
+                                    <Calendar
+                                        mode="single"
+                                        selected={date}
+                                        onSelect={(d) => { if (d) { setDate(d); setDatePopoverOpen(false); } }}
+                                        locale={idLocale}
+                                        initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <input
+                                data-testid="add-tx-time-input"
+                                type="time"
+                                value={time}
+                                onChange={(e) => setTime(e.target.value)}
+                                className="h-13 px-3 rounded-2xl border border-input bg-card font-sans text-sm outline-none"
+                            />
+                        </div>
                     </div>
 
                     {/* Note */}
