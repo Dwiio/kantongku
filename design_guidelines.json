@@ -1,0 +1,121 @@
+{
+  "project_name": "KantongKu",
+  "theme": "light_and_dark",
+  "typography": {
+    "primary_font": "Bricolage Grotesque",
+    "secondary_font": "Plus Jakarta Sans",
+    "import_url": "@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');",
+    "hierarchy": {
+      "h1": "font-['Bricolage_Grotesque'] text-4xl sm:text-5xl font-bold tracking-tight",
+      "h2": "font-['Bricolage_Grotesque'] text-2xl sm:text-3xl font-bold tracking-tight",
+      "h3": "font-['Bricolage_Grotesque'] text-xl font-semibold",
+      "h4": "font-['Plus_Jakarta_Sans'] text-lg font-bold",
+      "body": "font-['Plus_Jakarta_Sans'] text-base font-normal",
+      "small": "font-['Plus_Jakarta_Sans'] text-sm font-medium",
+      "tiny": "font-['Plus_Jakarta_Sans'] text-xs font-semibold tracking-wider uppercase"
+    }
+  },
+  "colors": {
+    "brand": {
+      "primary": "#2C62B5",
+      "accent": "#14B8A6",
+      "gold": "#F59E0B",
+      "coral": "#EF4444"
+    },
+    "light": {
+      "background": "#F8FAFC",
+      "surface": "#FFFFFF",
+      "text": "#0F172A",
+      "text_muted": "#64748B",
+      "border": "#E2E8F0"
+    },
+    "dark": {
+      "background": "#121B2A",
+      "surface": "#1E293B",
+      "text": "#FFFFFF",
+      "text_muted": "#94A3B8",
+      "border": "#334155",
+      "primary": "#3B82F6",
+      "accent": "#2DD4BF",
+      "gold": "#FBBF24",
+      "coral": "#F87171"
+    }
+  },
+  "visual_enhancers": {
+    "border_radius": "Use generous rounding for a friendly vibe. Cards should be rounded-2xl or rounded-3xl. Buttons should be rounded-full (pill shape). Tags rounded-full.",
+    "shadows": {
+      "light": "shadow-[0_8px_30px_rgb(0,0,0,0.04)] for cards, hover state: shadow-[0_8px_30px_rgb(0,0,0,0.08)]",
+      "dark": "No large shadows. Use subtle 1px border-white/10 and inner drop-shadow for depth."
+    },
+    "glassmorphism": "Used for bottom navigation bar and sticky headers: backdrop-blur-xl bg-white/80 (light) or bg-[#121B2A]/80 (dark). MUST have a top/bottom 1px subtle border.",
+    "icons": "Use lucide-react with strokeWidth={2.5} for a slightly thicker, playful, 'bubbly' appearance."
+  },
+  "layouts": {
+    "viewport": "Mobile-first (~390-430px wide container limit for web view). Wrap the main app inside a max-w-md mx-auto min-h-screen relative structure to simulate an Android app on desktop.",
+    "spacing": "Generous. Use p-4 to p-6 inside cards. Use gap-4 or gap-6 between layout sections.",
+    "bottom_nav": "Fixed at bottom. 5 items: Dashboard, Kalender, Add (Center FAB, large, brand primary), Analisis, Profile.",
+    "dashboard_grid": "Bento style. Top: Large Total Balance card. Below it: 2 columns for Income (Teal) and Expense (Coral).",
+    "timeline": "Grouped by date. A sticky date header (e.g., '22 Jumat, Agu 2025'), followed by a list of transaction items (icon, title, time, amount)."
+  },
+  "components": {
+    "cards": "Flat design with slight shadows in light mode. Do not use pure transparent backgrounds. Always explicit surface color.",
+    "budget_progress": "Progress bars with colored fills. Turn #EF4444 (Coral Red) when exceeded. Display a 'Melebihi Anggaran' pill if > 100%.",
+    "interactive_pie_chart": "Use Recharts. Make segments clickable to show details. Center of donut chart shows total expenses.",
+    "transaction_form": "Includes an image upload zone (thumbnail preview using the provided receipt image URL or user upload), amount input, category selector.",
+    "tabs": "Used for 'Pelacak Utang' (Untuk Dibayar / Untuk Diterima). Pill-shaped segmented controls.",
+    "calendar_grid": "Monthly view. Tiny green (income) and red (expense) dots under the dates."
+  },
+  "motion": {
+    "transitions": "Use framer-motion for smooth page routing. Slide in from right/bottom.",
+    "micro_interactions": "Tap scale: whileTap={{ scale: 0.95 }} on all buttons and clickable cards.",
+    "charts": "Animate pie chart segments on load. Animate progress bars growing from 0."
+  },
+  "media": {
+    "image_urls": [
+      {
+        "category": "mascot_3d_wallet",
+        "url": "https://images.unsplash.com/photo-1660139099083-03e0777ac6a7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2ODl8MHwxfHNlYXJjaHwzfHwzZCUyMHdhbGxldCUyMGlsbHVzdHJhdGlvbnxlbnwwfHx8fDE3ODQxNzcyODh8MA&ixlib=rb-4.1.0&q=85",
+        "description": "3D Blue wallet representing the KantongKu Mascot. Use on Splash, Onboarding, and Auth pages."
+      },
+      {
+        "category": "gold_coins",
+        "url": "https://images.pexels.com/photos/12198523/pexels-photo-12198523.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "3D Gold coins stack. Use as decorative asset in 'KantongKu Pro' pricing page."
+      },
+      {
+        "category": "receipt_thumbnail",
+        "url": "https://images.unsplash.com/photo-1545941962-1b6654eb8072?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwxfHxibGFuayUyMHJlY2VpcHQlMjBwYXBlciUyMHRodW1ibmFpbHxlbnwwfHx8fDE3ODQxNzcyNzh8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Receipt paper. Use as the thumbnail preview in the Transaction Form."
+      },
+      {
+        "category": "qris_payment_mock",
+        "url": "https://images.unsplash.com/photo-1595079676339-1534801ad6cf?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHwxfHxxciUyMGNvZGUlMjBwYXltZW50fGVufDB8fHx8MTc4NDE3NzI4OHww&ixlib=rb-4.1.0&q=85",
+        "description": "QR code payment mock. Use in the simulated checkout modal for KantongKu Pro."
+      },
+      {
+        "category": "user_profile_1",
+        "url": "https://images.unsplash.com/photo-1695013079138-d39ea65ab0b6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwzfHxhc2lhbiUyMHBlcnNvbiUyMHByb2ZpbGUlMjBwaWN0dXJlJTIwc21pbGluZyUyMGNhbmRpZHxlbnwwfHx8fDE3ODQxNzcyNzh8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Smiling Asian user profile picture. Use in the header and Profile page."
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "You are building 'KantongKu', an Indonesian Smart Money Management App.",
+    "IMPLEMENT A STRICT MOBILE-FIRST VIEWPORT: The app should look like a mobile app (max width ~430px, centered horizontally with a subtle border on desktop screens).",
+    "Enforce Dark Mode toggling properly using Tailwind's 'dark:' variant. The dark mode toggle should be in the Dashboard Header and Profile section.",
+    "Use Bricolage Grotesque for headings to give a playful, modern feel, and Plus Jakarta Sans for UI text.",
+    "Create a simulated Bottom Navigation Bar with 5 items. The middle item should be a floating action button (FAB) for adding transactions.",
+    "All text must be in Indonesian as requested (e.g., 'Catat Keuangan', 'Pelacak Utang', 'Untuk Dibayar', 'Untuk Diterima', 'Kalender Keuangan', 'Analisis', 'Akun dan Dompet').",
+    "For the KantongKu Pro pricing page, use the Gold Coins image and implement a mock QRIS payment overlay.",
+    "Make sure the Debt Tracker (Pelacak Utang) uses Tabs to switch between Payables and Receivables.",
+    "All interactive elements MUST have 'data-testid' attributes (e.g., data-testid='login-button', data-testid='bottom-nav-home')."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Prioritize using pre-existing components from src/components/ui when applicable.",
+    "Do not apply universal transition (transition: all). Use specific transitions.",
+    "Do not center align the app container in App.css (no .App { text-align: center; }).",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use sonner for toast notifications.",
+    "NEVER use placeholder domains (via.placeholder.com). Use the exact URLs provided in the media object."
+  ]
+}
