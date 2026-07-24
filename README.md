@@ -1,50 +1,88 @@
-# KantongKu - Asisten Keuangan AI & Manajemen Multi-Dompet
+# 👛 KantongKu
 
-KantongKu adalah aplikasi manajemen keuangan pintar berbasis web yang dioptimalkan secara penuh untuk perangkat seluler (*mobile-first*). Aplikasi ini dirancang agar siap dibungkus menjadi paket aplikasi Android (`.aab`/`.apk`) menggunakan PWA Builder atau Bubblewrap untuk dipublikasikan di Google Play Store.
-
-Aplikasi ini mengusung tema visual modern berbasis logo *Denim Pocket* dengan dukungan penuh Mode Gelap (*Dark Mode*) serta model bisnis *Freemium* yang terintegrasi.
+**KantongKu** adalah aplikasi manajemen keuangan pribadi berbasis web full-stack yang dirancang untuk membantu pengguna mengelola transaksi, dompet, anggaran, hutang-piutang, serta menganalisis kesehatan finansial secara terstruktur dan intuitif.
 
 ---
 
-## 🚀 Fitur Utama
+## 🎬 Demo Video
 
-### 1. Manajemen Multi-Dompet & Pembukuan Ganda
-*   Mendukung banyak akun dompet: Tunai, Kartu, Bank, Tabungan, dan Investasi.
-*   Akumulasi saldo utama secara dinamis dari seluruh dompet aktif.
-*   Pembatasan alur akun: Pengguna gratis maksimal 2 dompet, pengguna **Pro/Premium** tanpa batas.
+Lihat demonstrasi penggunaan aplikasi KantongKu melalui video berikut:
 
-### 2. Kalender Keuangan & Linimasa Harian
-*   Tampilan grid kalender bulanan dengan indikator pemasukan (hijau) dan pengeluaran (merah) harian.
-*   Linimasa transaksi yang dikelompokkan rapi berdasarkan kartu tanggal kartu.
-*   Dukungan lampiran gambar/kuitansi fisik untuk setiap riwayat transaksi.
+[![Video Demo KantongKu](https://img.shields.io/badge/TikTok-Watch%20Demo%20Video-000000?style=for-the-badge&logo=tiktok&logoColor=white)](https://www.tiktok.com/@sudahtapibelum/video/7663509435741916437?is_from_webapp=1&sender_device=pc&web_id=7542002393333827080)
 
-### 3. Perencana Anggaran & Analisis Interaktif
-*   Batas anggaran (*threshold*) bulanan/tahunan per kategori dengan indikator visual otomatis berubah menjadi Merah Coral dan memicu peringatan "Melebihi Anggaran".
-*   Grafik lingkaran (*Pie Chart*) interaktif untuk membedakan persentase struktur pengeluaran (Makanan, Rental, Hiburan, dll.).
-
-### 4. Pelacak Utang & Piutang
-*   Ledger terpisah menjadi dua tab fungsional: **Untuk Dibayar** (utang Anda) dan **Untuk Diterima** (piutang dari orang lain).
-
-### 5. Mode Gelap Dinamis (*Dynamic Dark Mode*)
-*   Tombol toggle ikon Matahari/Bulan yang mengubah tema secara instan tanpa memutus sesi pengguna.
-*   Preferensi tema tersimpan otomatis di penyimpanan lokal (*local storage* browser).
+> 🔗 **Direct Link**: [Tonton Video Demo di TikTok](https://www.tiktok.com/@sudahtapibelum/video/7663509435741916437?is_from_webapp=1&sender_device=pc&web_id=7542002393333827080)
 
 ---
 
-## 🛠️ Teknologi yang Digunakan
+## 📋 Daftar Isi
 
-*   **Frontend**: React.js / Next.js (Tailwind CSS untuk *styling* responsif)
-*   **Backend**: Python (Flask / FastAPI) atau Node.js
-*   **Fitur Pro**: PWA Service Worker + `manifest.json` untuk kapabilitas luring (*offline caching*)
+- [Demo Video](#-demo-video)
+- [Fitur Utama](#-fitur-utama)
+- [Teknologi yang Digunakan](#-teknologi-yang-digunakan)
+- [Struktur Repositori](#-struktur-repositori)
+- [Panduan Memulai](#-panduan-memulai)
+  - [Prasyarat](#prasyarat)
+  - [Langkah Instalasi](#langkah-instalasi)
+- [Pengujian (Testing)](#-pengujian-testing)
+- [Deployment](#-deployment)
+- [Lisensi](#-lisensi)
 
 ---
 
-## 💻 Panduan Instalasi Lokal
+## ✨ Fitur Utama
 
-### Prasyarat
-Pastikan Anda sudah menginstal Node.js dan Python/Package Manager yang sesuai di komputer Anda.
+- 📊 **Dashboard & Ringkasan Keuangan** — Pantau alur kas masuk/keluar, saldo dompet, dan rekapitulasi harian/bulanan.
+- 💳 **Manajemen Dompet (Wallets)** — Kelola beberapa akun/kantong penyimpanan uang (tunai, bank, e-wallet).
+- 💸 **Pencatatan Transaksi & Kategori** — Tambah, edit, dan kategorikan transaksi pemasukan dan pengeluaran.
+- 🎯 **Perencanaan Anggaran (Budgets)** — Atur batas pengeluaran per kategori untuk menjaga finansial tetap seimbang.
+- 🤝 **Catatan Utang & Piutang (Debts)** — Lacak riwayat pinjaman uang beserta status pelunasannya.
+- 📅 **Tampilan Kalender** — Visualisasi riwayat transaksi harian secara lebih rapi dan periodik.
+- 📈 **Analisis & Laporan** — Grafik dan analisis mendalam mengenai pola pengeluaran pengguna.
+- 🌓 **Tema Gelap/Terang (Dark/Light Mode)** — Dukungan mode tampilan yang fleksibel sesuai kenyamanan visual.
 
-1. **Clone Repositori:**
-   ```bash
-   git clone [https://github.com/dwiio/kantongku.git](https://github.com/dwiio/kantongku.git)
-   cd kantongku
+---
+
+## 🧰 Teknologi yang Digunakan
+
+### Frontend
+- **Framework**: React.js
+- **Styling**: Tailwind CSS & Shadcn UI Components
+- **Build Tool / Config**: CRACO (Create React App Configuration Override)
+
+### Backend
+- **Framework**: Python (FastAPI / Server.py)
+- **Testing**: Pytest
+
+### Infrastructure & Config
+- **Deployment Platform**: Vercel (`vercel.json`)
+- **Cron Jobs**: Emergent scripts & shell automation
+
+---
+
+## 📁 Struktur Repositori
+
+```text
+kantongku-main/
+├── backend/                  # Application backend (Python / Server API)
+│   ├── tests/                # Unit & integration tests for backend
+│   ├── pytest.ini            # Pytest configuration
+│   ├── requirements.txt      # Python backend dependencies
+│   └── server.py             # Main backend application entry point
+├── frontend/                 # Application frontend (React.js)
+│   ├── public/               # Public assets, icons, HTML template, manifest
+│   ├── src/                  # Source code React
+│   │   ├── components/       # Reusable components & UI Library
+│   │   ├── context/          # React Context (Auth, Theme)
+│   │   ├── hooks/            # Custom React hooks
+│   │   ├── lib/              # Utility helpers, API instances, categories
+│   │   └── pages/            # Page components (Dashboard, Budgets, Debts, dll)
+│   ├── craco.config.js       # CRACO configuration file
+│   ├── tailwind.config.js    # Tailwind CSS configuration
+│   └── package.json          # Frontend dependencies & scripts
+├── memory/                   # Documentation & Product Requirements (PRD)
+│   └── PRD.md
+├── test_reports/             # Test results & automated test reports
+├── .emergent/                # Automation & webhook cron scripts
+├── design_guidelines.json    # UI/UX design tokens & guidelines
+├── vercel.json               # Vercel deployment configuration
+└── README.md                 # Documentation
