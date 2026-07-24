@@ -12,20 +12,6 @@ Lihat demonstrasi penggunaan aplikasi KantongKu melalui video berikut:
 
 > 🔗 **Direct Link**: [Tonton Video Demo di TikTok](https://www.tiktok.com/@sudahtapibelum/video/7663509435741916437?is_from_webapp=1&sender_device=pc&web_id=7542002393333827080)
 
----
-
-## 📋 Daftar Isi
-
-- [Demo Video](#-demo-video)
-- [Fitur Utama](#-fitur-utama)
-- [Teknologi yang Digunakan](#-teknologi-yang-digunakan)
-- [Struktur Repositori](#-struktur-repositori)
-- [Panduan Memulai](#-panduan-memulai)
-  - [Prasyarat](#prasyarat)
-  - [Langkah Instalasi](#langkah-instalasi)
-- [Pengujian (Testing)](#-pengujian-testing)
-- [Deployment](#-deployment)
-- [Lisensi](#-lisensi)
 
 ---
 
